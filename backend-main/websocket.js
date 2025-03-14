@@ -5,7 +5,7 @@ let connections = [];
 const wss = new WebSocket.Server({ port: 5000 });
 
 wss.on('connection', (ws) => {
-    const clientID = Math.random().toString(36);
+    const clientID = Date.now();
     ws.clientID = clientID;
     connections.push(ws);
     console.log(`Новое соединение: ${clientID}`);
@@ -17,7 +17,13 @@ wss.on('connection', (ws) => {
         // Отправляем сообщение всем подключенным клиентам
         connections.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(`Покупатель ${clientID} ${textMessage}`);
+                if (client === ws) {
+                    client.send(`Вы (id ${clientID}): ${textMessage}`); 
+                }
+                else {
+                   client.send(`Покупатель (id ${clientID}): ${textMessage}`); 
+                }
+                
             }
         });
     });

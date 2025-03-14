@@ -48,7 +48,7 @@
 
         fetchProducts();
 
-        // === ЧАТ ===
+        // ЧАТ
         const messagesDiv = document.getElementById('messages');
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
@@ -66,9 +66,8 @@
 
         // Обработка нажатия кнопки "Отправить"
         sendButton.addEventListener('click', () => {
-            let message = messageInput.value; // Получаем введённое сообщение
+            let message = messageInput.value; 
             if (message) {
-                // Добавляем "ВЫ" в начале сообщения
                 socket.send(message); // Отправка сообщения на сервер
                 messageInput.value = ''; // Очистка поля ввода
                 console.log(message);

@@ -1,0 +1,144 @@
+openapi: 3.0.3
+info:
+  title: Swagger Petstore - OpenAPI 3.0
+  version: 1.0.11
+servers:
+  - url: http://localhost:3000
+paths:
+  /products:
+    get:
+      summary: Получить список товаров
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    price:
+                      type: integer
+                    description:
+                      type: string
+                    categories:
+                      type: array
+                      items:
+                        type: string
+
+    post:
+      summary: Добавить новый товар или несколько товаров
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  properties:
+                    name:
+                      type: string
+                    price:
+                      type: integer
+                    description:
+                      type: string
+                    categories:
+                      type: array
+                      items:
+                        type: string
+                - type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      price:
+                        type: integer
+                      description:
+                        type: string
+                      categories:
+                        type: array
+                        items:
+                          type: string
+      responses:
+        '201':
+          description: Товар(ы) добавлен(ы)
+
+  /products/{id}:
+    get:
+      summary: Получить товар по ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID товара
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  price:
+                    type: integer
+                  description:
+                    type: string
+                  categories:
+                    type: array
+                    items:
+                      type: string
+    
+    put:
+      summary: Редактировать товар
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID товара
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                price:
+                  type: integer
+                description:
+                  type: string
+                categories:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Товар обновлён
+  
+    delete:
+      summary: Удалить товар по ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID товара
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Товар удалён

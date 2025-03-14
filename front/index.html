@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог товаров</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <h1 class="text-center">Каталог товаров</h1>
+    <div id="products" class="d-flex flex-wrap justify-content-center"></div>
+
+    <hr>
+
+    <h2 class="text-center">Чат поддержки</h2>
+    <div id="chat-container" class="container">
+        <div id="messages" class="border p-3" style="height: 300px; overflow-y: scroll;"></div>
+        <input type="text" id="messageInput" class="form-control mt-2" placeholder="Введите сообщение...">
+        <button id="sendButton" class="btn btn-primary mt-2">Отправить</button>
+    </div>
+
+    <script>
+        const GRAPHQL_URL = 'http://localhost:4000/graphql';
+
+        async function fetchProducts() {
+            const response = await fetch(GRAPHQL_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: `{ products { name price } }` })
+            });
+
+            const { data } = await response.json();
+            const container = document.getElementById('products');
+            container.innerHTML = '';
+
+            data.products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = "card text-center m-2 p-3";
+                card.style = "width: 250px; border: 1px solid #ccc; border-radius: 5px;";
+                card.innerHTML = 
+                    `<h2 class="card-title">${product.name}</h2>
+                    <p class="card-text"><strong>Цена:</strong> ${product.price}₽</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        fetchProducts();
+
+        // === ЧАТ ===
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+        // Создаем WebSocket соединение
+        const socket = new WebSocket('ws://localhost:5000');
+
+        // Обработка входящих сообщений
+        socket.onmessage = (event) => {
+            const message = document.createElement('p');
+            message.textContent = event.data; // Поступившее сообщение
+            messagesDiv.append(message);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Прокручиваем вниз
+        };
+
+        // Обработка нажатия кнопки "Отправить"
+        sendButton.addEventListener('click', () => {
+            let message = messageInput.value; // Получаем введённое сообщение
+            if (message) {
+                // Добавляем "ВЫ" в начале сообщения
+                socket.send(message); // Отправка сообщения на сервер
+                messageInput.value = ''; // Очистка поля ввода
+                console.log(message);
+            }
+        });
+
+        // Обработка нажатия клавиши Enter
+        messageInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                sendButton.click();
+            }
+        });
+    </script>
+</body>
+</html>
